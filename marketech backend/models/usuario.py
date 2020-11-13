@@ -11,7 +11,7 @@ class UsuarioModel(base_de_datos.Model):
     telefono = base_de_datos.Column("telefono",base_de_datos.Integer,nullable=False)
     descripcion = base_de_datos.Column("descripcion",base_de_datos.Text,nullable=False)
     sexo = base_de_datos.Column("sexo",base_de_datos.String(50),nullable=False)
-    avatar = base_de_datos.Column("avatar",base_de_datos.String(225),nullable=False)
+    avatar = base_de_datos.Column("avatar",base_de_datos.String(225), default="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSymjxHoVB2hlH41ioYDjkzOd7oVPhJu-uIeQ&usqp=CAU",nullable=False)
     direccion = base_de_datos.Column("direccion",base_de_datos.String(225),nullable=False)
     fechadecreacion = base_de_datos.Column("fechadecreacion",base_de_datos.Date,nullable=False)
     fechadeactualizacion = base_de_datos.Column("fechadeactualizacion",base_de_datos.Date,nullable=False)
@@ -29,4 +29,25 @@ class UsuarioModel(base_de_datos.Model):
         self.direccion = direccion
         self.fechadecreacion = fechadecreacion
         self.fechadeactualizacion = fechadeactualizacion
+
+    def guardar_en_la_basededatos(self):
+        base_de_datos.session.add(self)
+        base_de_datos.session.commit()
+
+    def mostrar_como_json(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "fechadenacimiento": self.fechadenacimiento,
+            "correo": self.correo,
+            "contrasena": self.contrasena,
+            "telefono": self.telefono,
+            "descripcion": self.sexo,
+            "sexo": self.sexo,
+            "avatar": self.avatar,
+            "direccion": self.direccion,
+            "fechadecreacion": self.fechadecreacion,
+            "fechadeactualizacion": self.fechadeactualizacion
+        }
     

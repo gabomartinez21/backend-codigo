@@ -67,11 +67,8 @@ class ProductosController(Resource):
         }
     def post(self):
         data = self.parser.parse_args()
-        print(data)
         producto = ProductoModel(data['id_categoria'], data['id_usuario'], data['imagen'],data['nombre'],data['descripcion'], data['stock'], data['precio'], data['precio_oferta'])
-        print(producto)
         producto.guardar_bd()
-        print(producto)
         return {
             'ok':True,
             'message':'El producto se guardó exitosamente.',
@@ -79,7 +76,7 @@ class ProductosController(Resource):
         }
         try:
             producto.guardar_bd()
-            print(producto)
+
             return {
                 'ok':True,
                 'message':'El producto se guardó exitosamente.',

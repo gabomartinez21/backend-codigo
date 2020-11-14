@@ -3,6 +3,10 @@ from flask_restful import Api
 from base_de_datos import base_de_datos
 from controllers.usuario import IniciodeSesion,CrearCuenta,BusquedadeUsuario,InformaciondeUsuario
 
+from models.usuario import UsuarioModel
+from models.categoria import CategoriaModel
+from models.producto import ProductoModel
+from controllers.producto import ProductosController, ProductoController
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:root@localhost/marketech'
@@ -23,6 +27,8 @@ api.add_resource(IniciodeSesion,"/iniciarsesion")
 api.add_resource(BusquedadeUsuario,"/usuario/<string:nombre>")
 api.add_resource(InformaciondeUsuario,"/informacion/usuario/<string:nombre>")
 
+api.add_resource(ProductosController,'/productos')
+api.add_resource(ProductoController, '/producto/<int:id_producto>')
 
 
 if __name__ == "__main__":

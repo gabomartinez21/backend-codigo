@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from base_de_datos import base_de_datos
-from controllers.usuario import UsuariosController,UsuarioController
+from controllers.usuario import IniciodeSesion,CrearCuenta,BusquedadeUsuario,InformaciondeUsuario
 
 
 app = Flask(__name__)
@@ -18,8 +18,10 @@ def creartablas():
 def rutainical():
     return "El Servidor de Marketech esta corriendo exitosamente"
 
-api.add_resource(UsuariosController,"/registrarse")
-api.add_resource(UsuarioController,"/iniciarsesion")
+api.add_resource(CrearCuenta,"/crearcuenta")
+api.add_resource(IniciodeSesion,"/iniciarsesion")
+api.add_resource(BusquedadeUsuario,"/usuario/<string:nombre>")
+api.add_resource(InformaciondeUsuario,"/informacion/usuario/<string:nombre>")
 
 
 

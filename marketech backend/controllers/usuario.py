@@ -1,7 +1,53 @@
 from flask_restful import Resource,reqparse
 from models.usuario import UsuarioModel
+from datetime import date
 
-class UsuariosController(Resource):
+class IniciodeSesion(Resource):
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            "nombre",
+            type=str,
+            required=True,
+            help="Ingrese un nombre valido"
+        )
+        parser.add_argument(
+            "correo",
+            type=str,
+            required=True,
+            help="Ingrese un correo valido"
+        )
+        parser.add_argument(
+            "contrasena",
+            type=str,
+            required=True,
+            help="ingrese una contrasena valida"
+        )
+
+        data = parser.parse_args()
+        nombre = data["nombre"]
+        correo = data["correo"]
+        contrasena = data["contrasena"]
+
+        nombre_usuario = UsuarioModel.query.filter_by(nombre=nombre).first()
+        correo_usuario = UsuarioModel.query.filter_by(correo=correo).first()
+        contrasena_usuario = UsuarioModel.query.filter_by(contrasena=contrasena).first()
+
+        if nombre_usuario and correo_usuario and contrasena_usuario:
+            return {
+                "ok": True,
+                "content": nombre_usuario.mostrar_como_json(),
+                "message": "El usuario {} fue encontrado exitosamente y se puede iniciar sesion".format(nombre)
+            },200
+        else:
+            return {
+                "ok": True,
+                "content": None,
+                "message": "El usuario con el nombre {}, con el correo {} y con la contrasena {} no existe o no se logro encontrar".format(nombre,correo,contrasena)
+            },404
+
+class CrearCuenta(Resource):
 
     parser = reqparse.RequestParser()
     parser.add_argument(
@@ -66,13 +112,13 @@ class UsuariosController(Resource):
     )
     parser.add_argument(
         "fechadecreacion",
-        type=str,
+        type=date,
         required=False,
         help="La fecha de creacion no se agrego correctamente"
     )
     parser.add_argument(
         "fechadeactualizacion",
-        type=str,
+        type=date,
         required=False,
         help="La fecha de actualizacion no se agrego correctamente"
     )
@@ -90,53 +136,61 @@ class UsuariosController(Resource):
         sexo = data["sexo"]
         avatar = data["avatar"]
         direccion = data["direccion"]
-        fechadecreacion = data["fechadecreacion"]
-        fechadeactualizacion = data["fechadeactualizacion"]
 
-        nuevousuario = UsuarioModel(nombre,apellido,fechadenacimiento,correo,contrasena,telefono,descripcion,sexo,avatar,direccion,fechadecreacion,fechadeactualizacion)
+        verificadordenombre = UsuarioModel.query.filter_by(nombre=nombre).first()
+        verificadordecorreo = UsuarioModel.query.filter_by(correo=correo).first()
+        verificadordetelefono = UsuarioModel.query.filter_by(telefono=telefono).first()
 
-        try:
-            nuevousuario.guardar_en_la_basededatos()
-            print(nuevousuario)
+        if verificadordenombre and verificadordecorreo and verificadordetelefono:
             return {
-                "ok": True,
-                "content": nuevousuario.mostrar_como_json(),
-                "message":"el usuario fue agregado a la base de datos exitosamente"
-            },201
-        except:
-            return{
                 "ok": False,
                 "content": None,
-                "message": "Ocurrio un error al guardar el usuario en la base de datos"
-            },500
-
-class UsuarioController(Resource):
-
-    def post(self):
-        data = self.parser.parse_args()
-        nombre = data["nombre"]
-        correo = data["correo"]
-        contrasena = data["contrasena"]
-
-        nombre_usuario = UsuarioModel.query.filter_by(nombre=nombre).first()
-        correo_usuario = UsuarioModel.query.filter_by(correo=correo).first()
-        contrasena_usuario = UsuarioModel.query.filter_by(contrasena=contrasena).first()
-
-        if nombre_usuario and correo_usuario and contrasena_usuario:
+                "message": "el nombre y el correo ingresado ya estan en uso"
+            }
+        
+        elif verificadordenombre:
             return {
-                "ok": True,
-                "content": nombre_usuario.mostrar_como_json(),
-                "message": "El usuario {} fue encontrado exitosamente y se puede iniciar sesion".format(nombre)
-            },200
-        else:
-            return {
-                "ok": True,
+                "ok": False,
                 "content": None,
-                "message": "El usuario con el nombre {}, con el correo {} y con la contrasena {} no existe o no se logro encontrar".format(nombre,correo,contrasena)
-            },404
+                "message": "el nombre ingresado ya esta en uso"
+            }
+        
+        elif verificadordecorreo:
+            return {
+                "ok": False,
+                "content": None,
+                "message": "el correo ingresado ya esta en uso"
+            }
 
-    def get(self,nombre_usuario):
-        usuariousandolaaplicacion = UsuarioModel.query.filter_by(nombre=nombre_usuario).first()
+        elif verificadordetelefono:
+            return {
+                "ok": False,
+                "content": None,
+                "message": "el telefono ingresado ya esta en uso"
+            }
+
+        else:
+            nuevousuario = UsuarioModel(nombre,apellido,fechadenacimiento,correo,contrasena,telefono,descripcion,sexo,avatar,direccion,date.today(),date.today())
+
+            try:
+                nuevousuario.guardar_en_la_basededatos()
+                print(nuevousuario)
+                return {
+                    "ok": True,
+                    "content": nuevousuario.mostrar_como_json(),
+                    "message":"el usuario fue agregado a la base de datos exitosamente"
+                },201
+            except:
+                    return{
+                        "ok": False,
+                        "content": None,
+                        "message": "Ocurrio un error al guardar el usuario en la base de datos"
+                    },500
+
+class BusquedadeUsuario(Resource):
+
+    def get(self,nombre):
+        usuariousandolaaplicacion = UsuarioModel.query.filter_by(nombre=nombre).first()
         print(usuariousandolaaplicacion.nombre)
 
         if usuariousandolaaplicacion:
@@ -149,11 +203,13 @@ class UsuarioController(Resource):
             return {
                 "ok":False,
                 "content": None,
-                "message": "el usuario con el nombre {} no fue encontrado".format(nombre_usuario)
+                "message": "el usuario con el nombre {} no fue encontrado".format(nombre)
             },404
 
-    def put(self,nombre_usuario):
-        usuarioparaactualizar = UsuarioModel.query.filter_by(nombre=nombre_usuario).first()
+class InformaciondeUsuario(Resource):
+    
+    def put(self,nombre):
+        usuarioparaactualizar = UsuarioModel.query.filter_by(nombre=nombre).first()
         print(usuarioparaactualizar.nombre)
         
         if usuarioparaactualizar:
@@ -219,12 +275,6 @@ class UsuarioController(Resource):
                 help="Ingrese una direccion valida"
             )
             parser.add_argument(
-                "fechadecreacion",
-                type=str,
-                required=False,
-                help="La fecha de creacion no se agrego correctamente"
-            )
-            parser.add_argument(
                 "fechadeactualizacion",
                 type=str,
                 required=False,
@@ -242,8 +292,7 @@ class UsuarioController(Resource):
             usuarioparaactualizar.sexo = data["sexo"]
             usuarioparaactualizar.avatar = data["avatar"]
             usuarioparaactualizar.direccion = data["direccion"]
-            usuarioparaactualizar.fechadecreacion = data["fechadecreacion"]
-            usuarioparaactualizar.fechadeactualizacion = data["fechadeactualizacion"]
+            usuarioparaactualizar.fechadeactualizacion = date.today()
             usuarioparaactualizar.guardar_en_la_basededatos()
 
             return {

@@ -1,4 +1,5 @@
 from base_de_datos import base_de_datos
+from datetime import date
 
 class UsuarioModel(base_de_datos.Model):
     __tablename__="Usuarios"
@@ -39,15 +40,12 @@ class UsuarioModel(base_de_datos.Model):
             "id": self.id,
             "nombre": self.nombre,
             "apellido": self.apellido,
-            "fechadenacimiento": self.fechadenacimiento,
             "correo": self.correo,
             "contrasena": self.contrasena,
             "telefono": self.telefono,
-            "descripcion": self.sexo,
+            "descripcion": self.descripcion,
             "sexo": self.sexo,
             "avatar": self.avatar,
-            "direccion": self.direccion,
-            "fechadecreacion": self.fechadecreacion,
-            "fechadeactualizacion": self.fechadeactualizacion
+            "direccion": self.direccion
         }
     

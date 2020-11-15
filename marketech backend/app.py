@@ -8,6 +8,9 @@ from models.categoria import CategoriaModel
 from models.producto import ProductoModel
 from controllers.producto import ProductosController, ProductoController
 
+from models.reclamo import ReclamoModel
+from controllers.reclamo import ReclamoController
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:root@localhost/marketech'
 api = Api(app=app)
@@ -30,6 +33,7 @@ api.add_resource(InformaciondeUsuario,"/informacion/usuario/<string:nombre>")
 api.add_resource(ProductosController,'/productos')
 api.add_resource(ProductoController, '/producto/<int:id_producto>')
 
+api.add_resource(ReclamoController, '/reclamo')
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -4,6 +4,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def inicio():
-    return "Ale esta loco pa la verga"
+    return "Muestra"
 
 app.run(debug=True, port=8000)

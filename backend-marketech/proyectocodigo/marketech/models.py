@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
-
+from rest_framework_simplejwt.tokens import RefreshToken
 # Create your models here.
 
 class ModificarUsuario(BaseUserManager):
@@ -63,4 +63,43 @@ class UsuarioModel(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "usuarios"
+
+
+class CategoriasModel(models.Model):
+    id = models.AutoField(db_column="id", primary_key=True, null=False, unique=True)
+    nombre = models.CharField(db_column="nombre", max_length=255, null=False, unique=True)
+    creado_el = models.DateField(db_column="creado_el", auto_now_add=True)
+    actualizado_el = models.DateField(db_column="actualizado_el", auto_now=True)
+    estado = models.BooleanField(db_column="estado", default=True, null=True)
+    class Meta:
+        db_table= "categorias"
+
+class ProductosModel(models.Model):
+    id = models.AutoField(db_column="id", primary_key=True, null=False, unique=True)
+    id_categoria = models.ForeignKey(CategoriasModel,on_delete=models.PROTECT, db_column="id_categoria", related_name="categoriaProducto")
+    id_usuario = models.ForeignKey(UsuarioModel,on_delete=models.PROTECT, db_column="id_usuario", related_name="usuarioProducto")
+    imagen = models.CharField(db_column="imagen", max_length=255, null=False)
+    nombre = models.CharField(db_column="nombre", max_length=255, null=False)
+    descripcion = models.TextField(db_column="descripcion", max_length=500, null=False)
+    stock = models.IntegerField(db_column="stock")
+    precio = models.DecimalField(db_column="precio", max_digits=5, decimal_places=2)
+    precio_oferta = models.DecimalField("precio_oferta", max_digits=5, decimal_places=2)
+    creado_el = models.DateField(db_column="creado_el", auto_now_add=True)
+    actualizado_el = models.DateField(db_column="actualizado_el", auto_now=True)
+    estado = models.BooleanField(db_column="estado", default=True, null=True)
+    class Meta:
+        db_table= "productos"
+
+class ReclamosModel(models.Model):
+    id = models.AutoField(db_column="id", primary_key=True, null=False, unique=True)
+    usuarioId = models.ForeignKey(UsuarioModel, on_delete=models.PROTECT, db_column="usuarioId", related_name="reclamoUsuario")
+    productoId = models.ForeignKey(ProductosModel, on_delete=models.PROTECT, db_column="productoId", related_name="reclamoProducto")
+    mensaje = models.TextField(db_column="direccion", max_length=500, null=False)
+    creado_el = models.DateField(db_column="creado_el", auto_now_add=True)
+    actualizado_el = models.DateField(db_column="actualizado_el", auto_now=True)
+    estado = models.BooleanField(db_column="estado", default=True, null=False)
+    
+
+    class Meta:
+        db_table = "reclamos"
 
